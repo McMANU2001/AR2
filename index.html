@@ -17,7 +17,8 @@
             <audio id="sound" src="avaroaTExto.mp3" preload="auto"></audio>
         </a-assets>
 
-        <a-marker preset="hiro">
+        <!-- Usamos marcador personalizado -->
+        <a-marker type="pattern" url="avaroa_marker.patt">
             <a-entity position="0 0 1.3" rotation="0 0 0">
                 <a-entity 
                     gltf-model="url(avaroa.gltf)" 
@@ -52,21 +53,18 @@
     </a-scene>
 
     <script>
-
         const marker = document.querySelector('a-marker');
         const model = document.querySelector('[gltf-model]');
         const sound = document.querySelector('[sound]');
         
         marker.addEventListener('markerFound', () => {
-            console.log('Marcador Hiro encontrado');
-
+            console.log('Marcador encontrado');
             model.setAttribute('animation-mixer', 'timeScale: 1');
-
             sound.components.sound.playSound();
         });
 
         marker.addEventListener('markerLost', () => {
-            console.log('Marcador Hiro perdido');
+            console.log('Marcador perdido');
             model.setAttribute('animation-mixer', 'timeScale: 0');
             sound.components.sound.pauseSound();
         });
