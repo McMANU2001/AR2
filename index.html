@@ -96,13 +96,11 @@
             sound.components.sound.pauseSound();
         });
 
-        // Función para manejar el fullscreen
         function toggleFullScreen() {
             if (!document.fullscreenElement &&
                 !document.mozFullScreenElement &&
                 !document.webkitFullscreenElement &&
                 !document.msFullscreenElement) {
-                // Solicitar fullscreen
                 if (document.documentElement.requestFullscreen) {
                     document.documentElement.requestFullscreen();
                 } else if (document.documentElement.msRequestFullscreen) {
@@ -113,7 +111,6 @@
                     document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
                 }
             } else {
-                // Salir de fullscreen
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.msExitFullscreen) {
@@ -126,10 +123,8 @@
             }
         }
 
-        // Evento para el botón de fullscreen
         fullscreenBtn.addEventListener('click', toggleFullScreen);
 
-        // Actualizar el texto del botón según el estado
         document.addEventListener('fullscreenchange', updateFullscreenButton);
         document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
         document.addEventListener('mozfullscreenchange', updateFullscreenButton);
