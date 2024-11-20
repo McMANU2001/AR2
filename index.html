@@ -10,10 +10,8 @@
             margin: 0;
             overflow: hidden;
         }
-        #fullscreen-btn {
+        .control-button {
             position: fixed;
-            top: 10px;
-            right: 10px;
             padding: 10px;
             background: #333;
             color: #fff;
@@ -22,12 +20,24 @@
             cursor: pointer;
             z-index: 999;
         }
-        /* Asegura que el botón sea visible en modo fullscreen */
-        :fullscreen #fullscreen-btn {
+        #fullscreen-btn {
+            top: 10px;
+            right: 10px;
+        }
+        #torch-btn {
+            top: 10px;
+            right: 160px; /* Posicionado a la izquierda del botón de pantalla completa */
+        }
+        /* Asegura que los botones sean visibles en modo fullscreen */
+        :fullscreen .control-button {
             display: block !important;
         }
-        :-webkit-full-screen #fullscreen-btn {
+        :-webkit-full-screen .control-button {
             display: block !important;
+        }
+        /* Estilo para cuando la linterna está activa */
+        .torch-active {
+            background: #4CAF50 !important;
         }
     </style>
 </head>
@@ -77,13 +87,16 @@
         <a-entity camera></a-entity>
     </a-scene>
 
-    <button id="fullscreen-btn">Pantalla Completa</button>
+    <button id="torch-btn" class="control-button">Activar Linterna</button>
+    <button id="fullscreen-btn" class="control-button">Pantalla Completa</button>
 
     <script>
         const marker = document.querySelector('a-marker');
         const model = document.querySelector('[gltf-model]');
         const sound = document.querySelector('[sound]');
         const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const torchBtn = document.getElementById('torch-btn');
+        let track = null;
         
         marker.addEventListener('markerFound', () => {
             console.log('Marcador encontrado');
@@ -97,13 +110,56 @@
             sound.components.sound.pauseSound();
         });
 
+        // Control de la linterna
+        async function toggleTorch() {
+            try {
+                if (!track) {
+                    // Obtener acceso a la cámara con la linterna
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'environment',
+                            advanced: [{ torch: true }]
+                        }
+                    });
+                    track = stream.getVideoTracks()[0];
+                }
+
+                const imageCapabilities = track.getCapabilities();
+                
+                // Verificar si el dispositivo tiene linterna
+                if (!imageCapabilities.torch) {
+                    alert('Lo siento, tu dispositivo no tiene linterna o no permite controlarla.');
+                    return;
+                }
+
+                // Obtener el estado actual de la linterna
+                const torchState = await track.getSettings().torch;
+                
+                // Cambiar el estado de la linterna
+                await track.applyConstraints({
+                    advanced: [{ torch: !torchState }]
+                });
+
+                // Actualizar el estado visual del botón
+                if (!torchState) {
+                    torchBtn.textContent = 'Desactivar Linterna';
+                    torchBtn.classList.add('torch-active');
+                } else {
+                    torchBtn.textContent = 'Activar Linterna';
+                    torchBtn.classList.remove('torch-active');
+                }
+            } catch (err) {
+                console.error('Error al controlar la linterna:', err);
+                alert('Error al controlar la linterna. Asegúrate de dar permisos de cámara y que tu dispositivo soporte esta función.');
+            }
+        }
+
         // Función para manejar el fullscreen
         function toggleFullScreen() {
             if (!document.fullscreenElement &&
                 !document.mozFullScreenElement &&
                 !document.webkitFullscreenElement &&
                 !document.msFullscreenElement) {
-                // Solicitar fullscreen
                 if (document.documentElement.requestFullscreen) {
                     document.documentElement.requestFullscreen();
                 } else if (document.documentElement.msRequestFullscreen) {
@@ -114,7 +170,6 @@
                     document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
                 }
             } else {
-                // Salir de fullscreen
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.msExitFullscreen) {
@@ -127,10 +182,11 @@
             }
         }
 
-        // Evento para el botón de fullscreen
+        // Eventos para los botones
+        torchBtn.addEventListener('click', toggleTorch);
         fullscreenBtn.addEventListener('click', toggleFullScreen);
 
-        // Actualizar el texto del botón según el estado
+        // Actualizar el texto del botón de fullscreen según el estado
         document.addEventListener('fullscreenchange', updateFullscreenButton);
         document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
         document.addEventListener('mozfullscreenchange', updateFullscreenButton);
