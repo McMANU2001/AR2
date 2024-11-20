@@ -11,7 +11,7 @@
             overflow: hidden;
             font-family: Arial, sans-serif;
         }
-        #fullscreen-btn, #audio-controls {
+        #fullscreen-btn, #audio-controls, #replay-audio {
             position: fixed;
             right: 10px;
             padding: 10px;
@@ -27,6 +27,16 @@
         }
         #audio-controls {
             top: 60px;
+        }
+        #replay-audio {
+            top: 110px;
+        }
+        #volume-control {
+            position: fixed;
+            right: 10px;
+            top: 160px;
+            z-index: 999;
+            width: 150px;
         }
         #accessibility-info {
             position: fixed;
@@ -115,11 +125,25 @@
     <button id="audio-controls" aria-label="Control de audio">
         <span id="audio-status">Reproducir Audio</span>
     </button>
+    <button id="replay-audio" aria-label="Reproducir audio de nuevo">
+        Reproducir Audio
+    </button>
+
+    <input 
+        type="range" 
+        id="volume-control" 
+        min="0" 
+        max="2" 
+        step="0.1" 
+        value="1"
+        aria-label="Control de volumen"
+    >
 
     <div id="keyboard-instructions" class="sr-only">
         Instrucciones de teclado:
         - Enter/Espacio: Iniciar/Pausar contenido
         - F: Alternar pantalla completa
+        - R: Reproducir audio de nuevo
     </div>
 
     <script>
@@ -128,7 +152,9 @@
         const sound = document.querySelector('[sound]');
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         const audioControls = document.getElementById('audio-controls');
+        const replayAudioBtn = document.getElementById('replay-audio');
         const audioStatus = document.getElementById('audio-status');
+        const volumeControl = document.getElementById('volume-control');
         const accessibilityInfo = document.getElementById('accessibility-info');
 
         let isAudioPlaying = false;
@@ -166,6 +192,7 @@
         function toggleAudio() {
             if (!isAudioPlaying) {
                 sound.components.sound.playSound();
+                sound.components.sound.el.volume = volumeControl.value;
                 audioStatus.textContent = 'Pausar Audio';
                 isAudioPlaying = true;
             } else {
@@ -173,6 +200,14 @@
                 audioStatus.textContent = 'Reproducir Audio';
                 isAudioPlaying = false;
             }
+        }
+
+        function replayAudio() {
+            sound.components.sound.pauseSound();
+            sound.components.sound.playSound();
+            sound.components.sound.el.volume = volumeControl.value;
+            audioStatus.textContent = 'Pausar Audio';
+            isAudioPlaying = true;
         }
 
         function handleKeyboardNavigation(event) {
@@ -185,11 +220,22 @@
                 case 'F':
                     toggleFullScreen();
                     break;
+                case 'r':
+                case 'R':
+                    replayAudio();
+                    break;
             }
         }
 
+        volumeControl.addEventListener('input', () => {
+            if (isAudioPlaying) {
+                sound.components.sound.el.volume = volumeControl.value;
+            }
+        });
+
         fullscreenBtn.addEventListener('click', toggleFullScreen);
         audioControls.addEventListener('click', toggleAudio);
+        replayAudioBtn.addEventListener('click', replayAudio);
         document.addEventListener('keydown', handleKeyboardNavigation);
     </script>
 </body>
