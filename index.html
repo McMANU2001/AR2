@@ -11,9 +11,10 @@
             overflow: hidden;
             font-family: Arial, sans-serif;
         }
-        #fullscreen-btn, #audio-controls, #replay-audio {
+        #fullscreen-btn {
             position: fixed;
             right: 10px;
+            top: 10px;
             padding: 10px;
             background: #333;
             color: #fff;
@@ -21,22 +22,6 @@
             border-radius: 5px;
             cursor: pointer;
             z-index: 999;
-        }
-        #fullscreen-btn {
-            top: 10px;
-        }
-        #audio-controls {
-            top: 60px;
-        }
-        #replay-audio {
-            top: 110px;
-        }
-        #volume-control {
-            position: fixed;
-            right: 10px;
-            top: 160px;
-            z-index: 999;
-            width: 150px;
         }
         #accessibility-info {
             position: fixed;
@@ -110,7 +95,7 @@
                     aria-description="Información textual sobre la vida y obra de Eduardo Avaroa">
                 </a-image>
 
-                <a-entity sound="src: #sound"></a-entity>
+                <a-entity sound="src: #sound; volume: 1.5;"></a-entity>
             </a-entity>
         </a-marker>
 
@@ -122,42 +107,13 @@
     </div>
 
     <button id="fullscreen-btn" aria-label="Alternar pantalla completa">Pantalla Completa</button>
-    <button id="audio-controls" aria-label="Control de audio">
-        <span id="audio-status">Reproducir Audio</span>
-    </button>
-    <button id="replay-audio" aria-label="Reproducir audio de nuevo">
-        Reproducir Audio
-    </button>
-
-    <input 
-        type="range" 
-        id="volume-control" 
-        min="0" 
-        max="2" 
-        step="0.1" 
-        value="1"
-        aria-label="Control de volumen"
-    >
-
-    <div id="keyboard-instructions" class="sr-only">
-        Instrucciones de teclado:
-        - Enter/Espacio: Iniciar/Pausar contenido
-        - F: Alternar pantalla completa
-        - R: Reproducir audio de nuevo
-    </div>
 
     <script>
         const marker = document.querySelector('a-marker');
         const model = document.querySelector('[gltf-model]');
         const sound = document.querySelector('[sound]');
         const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const audioControls = document.getElementById('audio-controls');
-        const replayAudioBtn = document.getElementById('replay-audio');
-        const audioStatus = document.getElementById('audio-status');
-        const volumeControl = document.getElementById('volume-control');
         const accessibilityInfo = document.getElementById('accessibility-info');
-
-        let isAudioPlaying = false;
 
         marker.addEventListener('markerFound', () => {
             console.log('Marcador encontrado');
@@ -189,54 +145,12 @@
             }
         }
 
-        function toggleAudio() {
-            if (!isAudioPlaying) {
-                sound.components.sound.playSound();
-                sound.components.sound.el.volume = volumeControl.value;
-                audioStatus.textContent = 'Pausar Audio';
-                isAudioPlaying = true;
-            } else {
-                sound.components.sound.pauseSound();
-                audioStatus.textContent = 'Reproducir Audio';
-                isAudioPlaying = false;
-            }
-        }
-
-        function replayAudio() {
-            sound.components.sound.pauseSound();
-            sound.components.sound.playSound();
-            sound.components.sound.el.volume = volumeControl.value;
-            audioStatus.textContent = 'Pausar Audio';
-            isAudioPlaying = true;
-        }
-
-        function handleKeyboardNavigation(event) {
-            switch(event.key) {
-                case 'Enter':
-                case ' ':
-                    toggleAudio();
-                    break;
-                case 'f':
-                case 'F':
-                    toggleFullScreen();
-                    break;
-                case 'r':
-                case 'R':
-                    replayAudio();
-                    break;
-            }
-        }
-
-        volumeControl.addEventListener('input', () => {
-            if (isAudioPlaying) {
-                sound.components.sound.el.volume = volumeControl.value;
+        fullscreenBtn.addEventListener('click', toggleFullScreen);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'f' || event.key === 'F') {
+                toggleFullScreen();
             }
         });
-
-        fullscreenBtn.addEventListener('click', toggleFullScreen);
-        audioControls.addEventListener('click', toggleAudio);
-        replayAudioBtn.addEventListener('click', replayAudio);
-        document.addEventListener('keydown', handleKeyboardNavigation);
     </script>
 </body>
 </html>
