@@ -5,8 +5,33 @@
     <title>Eduardo Avaroa</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #fullscreen-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 999;
+        }
+        /* Asegura que el botón sea visible en modo fullscreen */
+        :fullscreen #fullscreen-btn {
+            display: block !important;
+        }
+        :-webkit-full-screen #fullscreen-btn {
+            display: block !important;
+        }
+    </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
+<body>
     <a-scene 
         embedded 
         arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
@@ -52,15 +77,12 @@
         <a-entity camera></a-entity>
     </a-scene>
 
-    <button id="fullscreen-btn" style="position: absolute; top: 10px; right: 10px; padding: 10px; background: #333; color: #fff; border: none; border-radius: 5px; cursor: pointer; z-index: 10;">
-        Pantalla Completa
-    </button>
+    <button id="fullscreen-btn">Pantalla Completa</button>
 
     <script>
         const marker = document.querySelector('a-marker');
         const model = document.querySelector('[gltf-model]');
         const sound = document.querySelector('[sound]');
-        const scene = document.getElementById('ar-scene');
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         
         marker.addEventListener('markerFound', () => {
@@ -75,17 +97,55 @@
             sound.components.sound.pauseSound();
         });
 
-        fullscreenBtn.addEventListener('click', () => {
-            if (scene.requestFullscreen) {
-                scene.requestFullscreen();
-            } else if (scene.webkitRequestFullscreen) { // Soporte para Safari
-                scene.webkitRequestFullscreen();
-            } else if (scene.msRequestFullscreen) { // Soporte para IE/Edge
-                scene.msRequestFullscreen();
+        // Función para manejar el fullscreen
+        function toggleFullScreen() {
+            if (!document.fullscreenElement &&
+                !document.mozFullScreenElement &&
+                !document.webkitFullscreenElement &&
+                !document.msFullscreenElement) {
+                // Solicitar fullscreen
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
             } else {
-                alert('Pantalla completa no es soportada en este navegador.');
+                // Salir de fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
             }
-        });
+        }
+
+        // Evento para el botón de fullscreen
+        fullscreenBtn.addEventListener('click', toggleFullScreen);
+
+        // Actualizar el texto del botón según el estado
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+        document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+        document.addEventListener('MSFullscreenChange', updateFullscreenButton);
+
+        function updateFullscreenButton() {
+            if (document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
+                fullscreenBtn.textContent = 'Salir de Pantalla Completa';
+            } else {
+                fullscreenBtn.textContent = 'Pantalla Completa';
+            }
+        }
     </script>
 </body>
 </html>
