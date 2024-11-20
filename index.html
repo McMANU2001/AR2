@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>Eduardo Avaroa - Experiencia Interactiva Accesible</title>
+    <title>Eduardo Avaroa</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            font-family: Arial, sans-serif;
         }
         #fullscreen-btn {
             position: fixed;
-            right: 10px;
             top: 10px;
+            right: 10px;
             padding: 10px;
             background: #333;
             color: #fff;
@@ -23,26 +22,11 @@
             cursor: pointer;
             z-index: 999;
         }
-        #accessibility-info {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            color: white;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
+        :fullscreen #fullscreen-btn {
+            display: block !important;
         }
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0,0,0,0);
-            white-space: nowrap;
-            border: 0;
+        :-webkit-full-screen #fullscreen-btn {
+            display: block !important;
         }
     </style>
 </head>
@@ -52,14 +36,10 @@
         arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
         vr-mode-ui="enabled: false"
         renderer="antialias: true; colorManagement: true; sortObjects: true;"
-        id="ar-scene"
-        role="application"
-        aria-label="Experiencia de Realidad Aumentada de Eduardo Avaroa">
+        id="ar-scene">
         
         <a-assets>
-            <audio id="sound" src="avaroaTExto.mp3" preload="auto">
-                <track kind="captions" src="avaroa-captions.vtt" srclang="es" label="Subtítulos en Español">
-            </audio>
+            <audio id="sound" src="avaroaTExto.mp3" preload="auto"></audio>
         </a-assets>
 
         <a-marker type="pattern" url="avaroa_marker.patt">
@@ -70,9 +50,7 @@
                     position="0 0 0"
                     rotation="-100 0 0"
                     animation-mixer
-                    shadow="receive: true; cast: true"
-                    aria-label="Modelo 3D de Eduardo Avaroa"
-                    role="img">
+                    shadow="receive: true; cast: true">
                 </a-entity>
 
                 <a-image 
@@ -80,9 +58,7 @@
                     position="-2.3 0 -2" 
                     rotation="-100 0 0"
                     width="2.5"
-                    height="2.6"
-                    alt="Retrato histórico de Eduardo Avaroa"
-                    aria-description="Fotografía de Eduardo Avaroa, líder militar y político boliviano">
+                    height="2.6">
                 </a-image>
 
                 <a-image 
@@ -90,67 +66,80 @@
                     position="2.3 0 -2" 
                     rotation="-100 0 0"
                     width="2.5"
-                    height="2.6"
-                    alt="Texto informativo sobre Eduardo Avaroa"
-                    aria-description="Información textual sobre la vida y obra de Eduardo Avaroa">
+                    height="2.6">
                 </a-image>
 
-                <a-entity sound="src: #sound; volume: 1.5;"></a-entity>
+                <a-entity sound="src: #sound"></a-entity>
             </a-entity>
         </a-marker>
 
-        <a-entity camera aria-label="Cámara de realidad aumentada"></a-entity>
+        <a-entity camera></a-entity>
     </a-scene>
 
-    <div id="accessibility-info" aria-live="polite">
-        Información de accesibilidad: Experiencia interactiva lista
-    </div>
-
-    <button id="fullscreen-btn" aria-label="Alternar pantalla completa">Pantalla Completa</button>
+    <button id="fullscreen-btn">Pantalla Completa</button>
 
     <script>
         const marker = document.querySelector('a-marker');
         const model = document.querySelector('[gltf-model]');
         const sound = document.querySelector('[sound]');
         const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const accessibilityInfo = document.getElementById('accessibility-info');
-
+        
         marker.addEventListener('markerFound', () => {
             console.log('Marcador encontrado');
             model.setAttribute('animation-mixer', 'timeScale: 1');
-            accessibilityInfo.textContent = 'Marcador detectado. Contenido activado.';
-            accessibilityInfo.style.display = 'block';
+            sound.components.sound.playSound();
         });
 
         marker.addEventListener('markerLost', () => {
             console.log('Marcador perdido');
             model.setAttribute('animation-mixer', 'timeScale: 0');
             sound.components.sound.pauseSound();
-            accessibilityInfo.textContent = 'Marcador perdido. Contenido pausado.';
         });
 
         function toggleFullScreen() {
-            if (!document.fullscreenElement) {
+            if (!document.fullscreenElement &&
+                !document.mozFullScreenElement &&
+                !document.webkitFullscreenElement &&
+                !document.msFullscreenElement) {
                 if (document.documentElement.requestFullscreen) {
                     document.documentElement.requestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
                 } else if (document.documentElement.mozRequestFullScreen) {
                     document.documentElement.mozRequestFullScreen();
                 } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen();
+                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
                 }
             } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
             }
         }
 
         fullscreenBtn.addEventListener('click', toggleFullScreen);
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'f' || event.key === 'F') {
-                toggleFullScreen();
+
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+        document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+        document.addEventListener('MSFullscreenChange', updateFullscreenButton);
+
+        function updateFullscreenButton() {
+            if (document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
+                fullscreenBtn.textContent = 'Salir de Pantalla Completa';
+            } else {
+                fullscreenBtn.textContent = 'Pantalla Completa';
             }
-        });
+        }
     </script>
 </body>
 </html>
