@@ -45,13 +45,13 @@
     </a-assets>
 
     <a-marker type="pattern" url="avaroa_marker.patt">
-        <!-- Modelo con rotación corregida para mirar al frente -->
+        <!-- Modelo con rotación corregida para estar derecho y mirando al frente -->
         <a-entity 
             id="model"
             gltf-model="url(avaroa.glb)" 
             scale="4.5 4.5 4.5"  
             position="0 0 0"
-            rotation="-90 180 0"  <!-- Cambiado a 180 en Y para girar el modelo -->
+            rotation="90 180 0"
             animation-mixer
             shadow="receive: true; cast: true"
             look-controls="enabled: false">
@@ -82,6 +82,7 @@
 
     <a-entity camera></a-entity>
 </a-scene>
+
 
 
     <button id="fullscreen-btn">Pantalla Completa</button>
