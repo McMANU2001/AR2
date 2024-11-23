@@ -32,55 +32,55 @@
 </head>
 <body>
     <a-scene 
-        embedded 
-        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-        vr-mode-ui="enabled: false"
-        renderer="antialias: true; colorManagement: true; sortObjects: true;"
-        device-orientation-permission-ui="enabled: false"
-        id="ar-scene">
-        
-        <a-assets>
-            <audio id="sound" src="avaroaTExto.mp3" preload="auto"></audio>
-        </a-assets>
+    embedded 
+    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+    vr-mode-ui="enabled: false"
+    renderer="antialias: true; colorManagement: true; sortObjects: true;"
+    device-orientation-permission-ui="enabled: false"
+    id="ar-scene">
+    
+    <a-assets>
+        <audio id="sound" src="avaroaTExto.mp3" preload="auto"></audio>
+    </a-assets>
 
-        <a-marker type="pattern" url="avaroa_marker.patt">
-            <!-- Agrupación para bloquear rotación -->
-            <a-entity 
-                id="model"
-                gltf-model="url(avaroa.glb)" 
-                scale="4.5 4.5 4.5"  
-                position="0 0 0"
-                rotation="-100 0 0"
-                animation-mixer
-                shadow="receive: true; cast: true"
-                look-controls="enabled: false">
-            </a-entity>
+    <a-marker type="pattern" url="avaroa_marker.patt">
+        <!-- Modelo con rotación ajustada para mirar al frente -->
+        <a-entity 
+            id="model"
+            gltf-model="url(avaroa.glb)" 
+            scale="4.5 4.5 4.5"  
+            position="0 0 0"
+            rotation="-90 0 0" 
+            animation-mixer
+            shadow="receive: true; cast: true"
+            look-controls="enabled: false">
+        </a-entity>
 
-            <a-image 
-                id="image1"
-                src="avaroaImagen.jpg"
-                position="-2.3 0 0" 
-                rotation="-100 0 0"
-                width="2.5"
-                height="2.6"
-                look-controls="enabled: false">
-            </a-image>
+        <a-image 
+            id="image1"
+            src="avaroaImagen.jpg"
+            position="-2.3 0 0" 
+            rotation="-100 0 0"
+            width="2.5"
+            height="2.6"
+            look-controls="enabled: false">
+        </a-image>
 
-            <a-image 
-                id="image2" 
-                src="TextoAvaroa.png"
-                position="2.3 0 0" 
-                rotation="-100 0 0"
-                width="2.5"
-                height="2.6"
-                look-controls="enabled: false">
-            </a-image>
+        <a-image 
+            id="image2" 
+            src="TextoAvaroa.png"
+            position="2.3 0 0" 
+            rotation="-100 0 0"
+            width="2.5"
+            height="2.6"
+            look-controls="enabled: false">
+        </a-image>
 
-            <a-entity sound="src: #sound"></a-entity>
-        </a-marker>
+        <a-entity sound="src: #sound"></a-entity>
+    </a-marker>
 
-        <a-entity camera></a-entity>
-    </a-scene>
+    <a-entity camera></a-entity>
+</a-scene>
 
     <button id="fullscreen-btn">Pantalla Completa</button>
 
